@@ -1,0 +1,102 @@
+gcc -o sim-outorder `./sysprobe -flags` -DDEBUG -O0 -g -Wall   sim-outorder.o cache.o bpred.o resource.o ptrace.o main.o syscall.o memory.o regs.o loader.o endian.o dlite.o symbol.o eval.o options.o stats.o eio.o range.o misc.o power.o machine.o libexo/libexo.a cacti/libcacti.a `./sysprobe -libs` -lm
+power.o(.text+0x10f9): In function `update_power_stats':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:489: undefined reference to `ruu_commit_width'
+power.o(.text+0x1137):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:492: undefined reference to `ruu_commit_width'
+power.o(.text+0x116c):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:493: undefined reference to `ruu_commit_width'
+power.o(.text+0x11a1):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:494: undefined reference to `ruu_commit_width'
+power.o(.text+0x14ee):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:544: undefined reference to `res_ialu'
+power.o(.text+0x1502):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:544: undefined reference to `res_fpalu'
+power.o(.text+0x1526):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:546: undefined reference to `res_ialu'
+power.o(.text+0x153a):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:546: undefined reference to `res_fpalu'
+power.o(.text+0x3367): In function `dump_power_stats':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1094: undefined reference to `RUU_size'
+power.o(.text+0x339b):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1096: undefined reference to `RUU_size'
+power.o(.text+0x5446): In function `total_clockpower':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1671: undefined reference to `RUU_size'
+power.o(.text+0x54a0):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1681: undefined reference to `RUU_size'
+power.o(.text+0x54c9):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1683: undefined reference to `RUU_size'
+power.o(.text+0x577c):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1714: undefined reference to `res_ialu'
+power.o(.text+0x578c):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1714: undefined reference to `res_fpalu'
+power.o(.text+0x5b2f): In function `compute_resultbus_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1762: undefined reference to `RUU_size'
+power.o(.text+0x5b7c):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1766: undefined reference to `RUU_size'
+power.o(.text+0x5b9d):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1770: undefined reference to `res_ialu'
+power.o(.text+0x5c23): In function `calculate_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1796: undefined reference to `RUU_size'
+power.o(.text+0x5c8e):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1814: undefined reference to `res_ialu'
+power.o(.text+0x5ca5):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1815: undefined reference to `res_fpalu'
+power.o(.text+0x5d0d):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1818: undefined reference to `RUU_size'
+power.o(.text+0x5f14):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1845: undefined reference to `RUU_size'
+power.o(.text+0x5f37):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1846: undefined reference to `RUU_size'
+power.o(.text+0x5f61):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1849: undefined reference to `RUU_size'
+power.o(.text+0x60d5):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1868: undefined reference to `RUU_size'
+power.o(.text+0x6135):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1874: more undefined references to `RUU_size' follow
+power.o(.text+0x6256): In function `calculate_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1885: undefined reference to `LSQ_size'
+power.o(.text+0x627f):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1886: undefined reference to `LSQ_size'
+power.o(.text+0x62d7):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1893: undefined reference to `RUU_size'
+power.o(.text+0x6342):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1898: undefined reference to `LSQ_size'
+power.o(.text+0x6377):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1899: undefined reference to `LSQ_size'
+power.o(.text+0x63ac):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1900: undefined reference to `LSQ_size'
+power.o(.text+0x640c):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1906: undefined reference to `btb_config'
+power.o(.text+0x6413):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1906: undefined reference to `btb_config'
+power.o(.text+0x6448):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1908: undefined reference to `btb_config'
+power.o(.text+0x6453):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1909: undefined reference to `btb_config'
+power.o(.text+0x66a8):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1948: undefined reference to `twolev_config'
+power.o(.text+0x66ae):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1948: undefined reference to `twolev_config'
+power.o(.text+0x66c2):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1949: undefined reference to `twolev_config'
+power.o(.text+0x66f5):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1950: undefined reference to `twolev_config'
+power.o(.text+0x6715):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1951: undefined reference to `twolev_config'
+power.o(.text+0x677a):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1956: more undefined references to `twolev_config' follow
+power.o(.text+0x6a9d): In function `calculate_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1970: undefined reference to `bimod_config'
+power.o(.text+0x6abb):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1972: undefined reference to `bimod_config'
+power.o(.text+0x6acf):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1974: undefined reference to `bimod_config'
+power.o(.text+0x6b1e):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1976: undefined reference to `bimod_config'
+power.o(.text+0x6b8d):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1981: undefined reference to `bimod_config'
+power.o(.text+0x6bdd):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1981: more undefined references to `bimod_config' follow
+power.o(.text+0x6c96): In function `calculate_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1983: undefined reference to `comb_config'
+power.o(.text+0x6caa):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1985: undefined reference to `comb_config'
+power.o(.text+0x6cf9):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1987: undefined reference to `comb_config'
+power.o(.text+0x6d68):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1991: undefined reference to `comb_config'
+power.o(.text+0x6db8):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1991: undefined reference to `comb_config'
+power.o(.text+0x6e10):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1991: more undefined references to `comb_config' follow
+power.o(.text+0x6e9d): In function `calculate_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1995: undefined reference to `ras_size'
+power.o(.text+0x6eb0):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1997: undefined reference to `cache_dl1'
+power.o(.text+0x6ef8):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:1997: undefined reference to `cache_dl1'
+power.o(.text+0x6f7a):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2001: undefined reference to `dtlb'
+power.o(.text+0x6fc5):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2001: undefined reference to `dtlb'
+power.o(.text+0x6fe8):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2001: undefined reference to `dtlb'
+power.o(.text+0x700d):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2003: undefined reference to `cache_il1'
+power.o(.text+0x7055):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2003: undefined reference to `cache_il1'
+power.o(.text+0x70a5):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2005: undefined reference to `itlb'
+power.o(.text+0x70bb):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2006: undefined reference to `itlb'
+power.o(.text+0x70dd):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2007: undefined reference to `itlb'
+power.o(.text+0x7116):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2011: undefined reference to `itlb'
+power.o(.text+0x7161):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2011: undefined reference to `itlb'
+power.o(.text+0x7184):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2011: more undefined references to `itlb' follow
+power.o(.text+0x71a7): In function `calculate_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2016: undefined reference to `cache_il1'
+power.o(.text+0x71ad):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2016: undefined reference to `cache_il1'
+power.o(.text+0x71bb):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2016: undefined reference to `cache_il1'
+power.o(.text+0x71cc):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2017: undefined reference to `cache_il1'
+power.o(.text+0x71da):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2018: undefined reference to `cache_il1'
+power.o(.text+0x71e8):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2019: more undefined references to `cache_il1' follow
+power.o(.text+0x75eb): In function `calculate_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2063: undefined reference to `cache_dl1'
+power.o(.text+0x75f1):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2063: undefined reference to `cache_dl1'
+power.o(.text+0x75ff):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2063: undefined reference to `cache_dl1'
+power.o(.text+0x7610):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2064: undefined reference to `cache_dl1'
+power.o(.text+0x761e):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2065: undefined reference to `cache_dl1'
+power.o(.text+0x762c):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2066: more undefined references to `cache_dl1' follow
+power.o(.text+0x7b0e): In function `calculate_power':
+/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2121: undefined reference to `cache_dl2'
+power.o(.text+0x7b14):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2121: undefined reference to `cache_dl2'
+power.o(.text+0x7b22):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2121: undefined reference to `cache_dl2'
+power.o(.text+0x7b33):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2122: undefined reference to `cache_dl2'
+power.o(.text+0x7b41):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2123: undefined reference to `cache_dl2'
+power.o(.text+0x7b4f):/home/yehuda/tmp/wattch/simplesim-3.0/power.c:2124: more undefined references to `cache_dl2' follow
+collect2: ld returned 1 exit status
+make: *** [sim-outorder] Error 1
