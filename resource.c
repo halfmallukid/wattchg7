@@ -57,10 +57,257 @@
 #include "misc.h"
 #include "resource.h"
 
-/* create a resource pool */
+/* update a resource pool USELESS ATM*/
+struct res_pool * res_update_pool_add(char *name,struct res_desc *old_pool,struct res_desc add_resource,int ndesc)
+{
+		int i,j,k,index,ninsts;
+		struct res_desc *new_inst_pool;
+		struct res_pool *new_res;
+		//the pointer that was used to access the pool earlier should be now overwritten with the current pointer since we are re-allocating resources.
+		//we do need new memory for a new res_desc and hence need to do a malloc/calloc again..?
+		//also while removing resources,  the same should be taken care of that the ones that are deactivated are removed , and not the ones taht are being used
+		for(ninsts=0, i=0;i<ndesc;i++)
+		{
+		 if (old_pool[i].quantity > MAX_INSTS_PER_CLASS)
+       		 fatal("too many functional units, increase MAX_INSTS_PER_CLASS");
+      	         ninsts += old_pool[i].quantity;
+		}
+
+		//update the number 
+		ninsts += add_resource.quantity;
+  		new_inst_pool = (struct res_desc *)calloc(ninsts+1, sizeof(struct res_desc));
+		//leave space for new element
+		 if (!new_inst_pool)
+   		 fatal("out of virtual memory");
+
+		 // the structure vals (even for busy stateshould be copied from the earlier
+		 //old_pool struct
+		 //and then overwritten for our new one
+		 for (index=0,i=0; i<ndesc; i++) //old ndesc TODO
+    		{
+			//SREEK ALERT - MAY NOT NEED THIS LOOP AT ALL
+			if(old_pool[i].quantity>1)
+				printf("WARNING! pool has >1 quantity resource\n");
+
+      			for (j=0; j<old_pool[i].quantity; j++)
+			{
+	  			new_inst_pool[index] = old_pool[i];
+	  			new_inst_pool[index].quantity = old_pool[i].quantity;
+	  			new_inst_pool[index].busy = old_pool[i].busy;
+	  			for (k=0; k<MAX_RES_CLASSES && new_inst_pool[index].x[k].class; k++)
+	    			new_inst_pool[index].x[k].master = &new_inst_pool[index];
+	  			index++;
+			}
+    		}
+
+		printf("updating!");
+		fflush(stdout);
+		//update the index and add teh new element
+		new_inst_pool[index] = add_resource;
+		new_inst_pool[index].quantity = add_resource.quantity;
+		new_inst_pool[index].busy = add_resource.busy;
+		printf("past suspect");
+		fflush(stdout);
+		for (k=0; k<MAX_RES_CLASSES && new_inst_pool[index].x[k].class; k++)
+		{
+	    		new_inst_pool[index].x[k].master = &new_inst_pool[index];
+		}
+
+		
+  		//assert(index == ninsts);
+
+		new_res = (struct res_pool *)calloc(1, sizeof(struct res_pool));
+  		if (!new_res)
+  		  fatal("out of virtual memory");
+ 		 new_res->name = name;
+ 		 new_res->num_resources = ninsts;
+ 		 new_res->resources = new_inst_pool;
+
+		/* fill in the resource table map - slow to build, but fast to access */
+  		for (i=0; i<ninsts; i++)
+ 		 {
+			 printf("updating table!\n");
+			 fflush(stdout);
+ 		     struct res_template *plate;
+     			 for (j=0; j<MAX_RES_CLASSES; j++)
+			{
+			  plate = &new_res->resources[i].x[j];
+			  if (plate->class)
+			    {
+			      assert(plate->class < MAX_RES_CLASSES);
+	      		      new_res->table[plate->class][new_res->nents[plate->class]++] = plate;
+	  		  }
+			  else
+	 		   /* all done with this instance */
+			    break;
+			}
+    		}
+
+  return new_res;
+
+		
+}
+int count_int_alus(struct res_pool *res_pool)
+{	
+
+	int int_counter = 0;
+	struct res_desc *fu_res = res_pool->resources;
+	int num_res = res_pool->num_resources;
+	char *fu_string = "integer-ALU";
+	int i;
+	for(i = 0;i<num_res;i++)
+	{
+		
+		if(!strncmp(fu_res[i].name,fu_string,strlen(fu_string)) && fu_res[i].active == 1 )
+			int_counter++;
+	}
+	return int_counter;
+}
+int count_mult_div_alus(struct res_pool *res_pool)
+{
+	int mult_div_counter = 0;
+	struct res_desc *fu_res = res_pool->resources;
+	int num_res = res_pool->num_resources;
+	char *fu_string = "integer-MULT/DIV";
+	int i;
+	for( i= 0;i<num_res;i++)
+	{
+		
+		if(!strncmp(fu_res[i].name,fu_string,strlen(fu_string))&& fu_res[i].active == 1 )
+			mult_div_counter++;
+	}
+
+	return mult_div_counter;
+}
+int count_mem_ports(struct res_pool *res_pool)
+{
+	int mem_port_counter = 0;
+	struct res_desc *fu_res = res_pool->resources;
+	int num_res = res_pool->num_resources;
+	char *fu_string = "memory-port";
+	int i;
+	for( i = 0;i<num_res;i++)
+	{
+		
+		if(!strncmp(fu_res[i].name,fu_string,strlen(fu_string))&& fu_res[i].active == 1 )
+			mem_port_counter++;
+	}
+
+	return mem_port_counter;
+}
+int count_fp_adders(struct res_pool *res_pool)
+{
+	int fp_adder_counter = 0 ;
+	struct res_desc *fu_res = res_pool->resources;
+	int num_res = res_pool->num_resources;
+	char *fu_string = "FP-adder";
+	int i;
+	for(i = 0;i<num_res;i++)
+	{
+		
+		if(!strncmp(fu_res[i].name,fu_string,strlen(fu_string))&& fu_res[i].active == 1 )
+			fp_adder_counter++;
+	}
+
+	return fp_adder_counter;
+}
+int count_fp_mul_divs(struct res_pool *res_pool)
+{
+	int fp_mul_divs_counter = 0 ;
+	struct res_desc *fu_res = res_pool->resources;
+	int num_res = res_pool->num_resources;
+	char *fu_string = "FP-MULT/DIV";
+	int i;
+	for(i = 0;i<num_res;i++)
+	{
+		
+		if(!strncmp(fu_res[i].name,fu_string,strlen(fu_string))&& fu_res[i].active == 1 )
+			fp_mul_divs_counter++;
+	}
+
+	return fp_mul_divs_counter;
+}
+int deactivate_alus_to(const int desired_target,int curr_num,enum fu_type target_type,struct res_pool *fu_pool)
+{
+	int updated_num = 0;
+
+		updated_num = curr_num;
+	//	printf("updated num is = %d and curr_num = %d desired target is %d!!!",updated_num,curr_num,desired_target);
+		if(curr_num  <= desired_target )
+		{
+		//	fflush(stdout);
+		//	printf("nothing to deactivate!!!!!");
+		//	fflush(stdout);
+			return 0;
+		}
+		else
+		{
+			updated_num = deactivate_first_free_fu(target_type,curr_num,desired_target,fu_pool);
+		//	if(updated_num > desired_target)
+		//	{
+			//	printf("not all resources were free!!!!");
+			//	fflush(stdout);
+		//	}
+		//	else
+		//	{
+		//		printf("target acheived!!!!");
+		//		fflush(stdout);
+		//	}
+		}
+		
+	return updated_num;
+}
+int deactivate_first_free_fu(enum fu_type fu_type,int curr_num,const int desired_target,struct res_pool* fu_pool)
+{
+	char fu_string[32];
+	memset(fu_string,0,32);
+	int num_res = curr_num;
+	struct res_desc *fu_res = fu_pool->resources;
+
+	switch(fu_type)
+	{
+		case INT_ALU:
+		strcpy(fu_string,"integer-ALU");
+			break;
+		case INT_MUL_DIV:
+			strcpy(fu_string,"integer-MULT/DIV");
+			break;
+		case MEM_PORT:
+			strcpy(fu_string,"memory-port");
+			break;
+		case FP_ADD:
+			strcpy(fu_string,"FP-adder");
+			break;
+		case FP_MUL_DIV:
+			strcpy(fu_string,"FP-MULT/DIV");
+			break;
+		default:
+			strcpy(fu_string,"integer-ALU");
+	}	
+	int i;
+	for(i = 0;i<num_res;i++)
+	{
+	
+	if(!strncmp(fu_res[i].name,fu_string,strlen(fu_string)))
+	{
+		if(fu_res[i].busy == 0 && fu_res[i].active == 1 && curr_num >desired_target)
+		{
+			fu_res[i].active = 0;	
+			curr_num = curr_num - 1;
+		}
+	}
+
+	}
+
+	return curr_num;
+
+}
 struct res_pool *
 res_create_pool(char *name, struct res_desc *pool, int ndesc)
 {
+	//ndesc is the number of resource desc defined in the fu_config
+	//structure
+	//pool is the pointer to fu_config array
   int i, j, k, index, ninsts;
   struct res_desc *inst_pool;
   struct res_pool *res;
@@ -68,12 +315,15 @@ res_create_pool(char *name, struct res_desc *pool, int ndesc)
   /* count total instances */
   for (ninsts=0,i=0; i<ndesc; i++)
     {
+	    //the ACTUAL number of instances is calculated now 
+	    //by adding the quantities
       if (pool[i].quantity > MAX_INSTS_PER_CLASS)
         fatal("too many functional units, increase MAX_INSTS_PER_CLASS");
       ninsts += pool[i].quantity;
     }
 
   /* allocate the instance table */
+  //allocate enough memory for ninst (actual no of instances)
   inst_pool = (struct res_desc *)calloc(ninsts, sizeof(struct res_desc));
   if (!inst_pool)
     fatal("out of virtual memory");
@@ -86,6 +336,8 @@ res_create_pool(char *name, struct res_desc *pool, int ndesc)
 	  inst_pool[index] = pool[i];
 	  inst_pool[index].quantity = 1;
 	  inst_pool[index].busy = FALSE;
+	  //SREEK CHANGES
+          inst_pool[index].active = pool[i].active;
 	  for (k=0; k<MAX_RES_CLASSES && inst_pool[index].x[k].class; k++)
 	    inst_pool[index].x[k].master = &inst_pool[index];
 	  index++;
@@ -94,6 +346,7 @@ res_create_pool(char *name, struct res_desc *pool, int ndesc)
   assert(index == ninsts);
 
   /* allocate the resouce pool descriptor */
+  //res is the resource pool!
   res = (struct res_pool *)calloc(1, sizeof(struct res_pool));
   if (!res)
     fatal("out of virtual memory");
@@ -111,6 +364,10 @@ res_create_pool(char *name, struct res_desc *pool, int ndesc)
 	  if (plate->class)
 	    {
 	      assert(plate->class < MAX_RES_CLASSES);
+	      //this part of the code fills in the entries
+	      //for an array , based on teh class value and 
+	      //the next slot for the particular class 
+	      //and keeps track of it in the res->nents[class] struct
 	      res->table[plate->class][res->nents[plate->class]++] = plate;
 	    }
 	  else
@@ -143,17 +400,27 @@ res_get(struct res_pool *pool, int class)
     {
       if (pool->table[class][i])
 	{
-	  if (!pool->table[class][i]->master->busy)
+	//SREEK critical change 
+	  if (!(pool->table[class][i]->master->busy) 
+		&& pool->table[class][i]->master->active)
 	    return pool->table[class][i];
 	}
       else
 	break;
-    }
+    } 
+//SREEK-CHANGES
+  if(pool->table[class][i-i])   
+   {
+ //  printf(" the i value is %d",i);
+//   printf(" class is %d\n",class);
+ //  printf(" name of hte master is %s",pool->table[class][i-1]->master->name);
+   }
   /* none found */
   return NULL;
 }
 
 /* dump the resource pool POOL to stream STREAM */
+//SREEK updated res_dump function to include active status flag
 void
 res_dump(struct res_pool *pool, FILE *stream)
 {
@@ -176,6 +443,8 @@ res_dump(struct res_pool *pool, FILE *stream)
 	  fprintf(stream, "\t%s (busy for %d cycles) ",
 		  pool->table[i][j]->master->name,
 		  pool->table[i][j]->master->busy);
+          fprintf(stream,"\tactive status is = %d",
+		  pool->table[i][j]->master->active);
 	}
       assert(j == pool->nents[i]);
       fprintf(stream, "\n");
