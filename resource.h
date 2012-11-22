@@ -60,11 +60,24 @@
 /* maximum number of resource instances for a class supported */
 #define MAX_INSTS_PER_CLASS	8
 
+//SREEK CHANGES +
+enum fu_type {
+INT_ALU=0,
+INT_MUL_DIV,
+MEM_PORT,
+FP_ADD,
+FP_MUL_DIV
+};
+//SREEK CHANGES -
+
 /* resource descriptor */
 struct res_desc {
   char *name;				/* name of functional unit */
   int quantity;				/* total instances of this unit */
   int busy;				/* non-zero if this unit is busy */
+  //SREEK changes +
+  int active;
+  //SREEK changes -		//needs to be assigned a default value of true when startign up , and set to false later on
   struct res_template {
     int class;				/* matching resource class: insts
 					   with this resource class will be
@@ -76,6 +89,7 @@ struct res_desc {
 					   issued on this resource */
     struct res_desc *master;		/* master resource record */
   } x[MAX_RES_CLASSES];
+
 };
 
 /* resource pool: one entry per resource instance */
@@ -88,8 +102,11 @@ struct res_pool {
   struct res_template *table[MAX_RES_CLASSES][MAX_INSTS_PER_CLASS];
 };
 
+
 /* create a resource pool */
 struct res_pool *res_create_pool(char *name, struct res_desc *pool, int ndesc);
+//SREEK CHANGES - update res pool
+struct res_pool * res_update_pool_add(char *name,struct res_desc *old_pool,struct res_desc add_resource,int ndesc);
 
 /* get a free resource from resource pool POOL that can execute a
    operation of class CLASS, returns a pointer to the resource template,
@@ -101,5 +118,13 @@ struct res_template *res_get(struct res_pool *pool, int class);
 
 /* dump the resource pool POOL to stream STREAM */
 void res_dump(struct res_pool *pool, FILE *stream);
+int count_int_alus(struct res_pool *res_pool);
+int count_mult_div_alus(struct res_pool *fu_pool);
+int count_mem_ports(struct res_pool *res_pool);
+int count_fp_adders(struct res_pool *res_pool);
+int count_fp_mul_divs(struct res_pool *res_pool);
+int deactivate_alus_to(const int desired_target,int curr_num,enum fu_type target_type,struct res_pool *fu_pool);
+int deactivate_first_free_fu(enum fu_type fu_type,int curr_num,const int desired_target,struct res_pool *fu_pool);
+
 
 #endif /* RESOURCE_H */
