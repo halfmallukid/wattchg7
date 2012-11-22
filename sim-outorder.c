@@ -288,21 +288,32 @@ static int bugcompat_mode;
 #define FU_MEMPORT_INDEX		2
 #define FU_FPALU_INDEX			3
 #define FU_FPMULT_INDEX			4
+//SREEK new macros for max-adders
+#define MAX_ADD				8
+#define MIN_ADD				4
 
 /* resource pool definition, NOTE: update FU_*_INDEX defs if you change this */
+//default values are 
+
+// 1 integer mult/div
+// 2 mem port
+// 4 fp-adder
+// 4 integer alus
 struct res_desc fu_config[] = {
   {
     "integer-ALU",
-    4,
+    6,
     0,
+    1,
     {
       { IntALU, 1, 1 }
     }
   },
   {
     "integer-MULT/DIV",
-    1,
+    4,
     0,
+    1,
     {
       { IntMULT, 3, 1 },
       { IntDIV, 20, 19 }
@@ -310,8 +321,9 @@ struct res_desc fu_config[] = {
   },
   {
     "memory-port",
-    2,
+    6, 
     0,
+    1,
     {
       { RdPort, 1, 1 },
       { WrPort, 1, 1 }
@@ -321,6 +333,7 @@ struct res_desc fu_config[] = {
     "FP-adder",
     4,
     0,
+    1,
     {
       { FloatADD, 2, 1 },
       { FloatCMP, 2, 1 },
@@ -329,8 +342,9 @@ struct res_desc fu_config[] = {
   },
   {
     "FP-MULT/DIV",
-    1,
+    6,
     0,
+    1,
     {
       { FloatMULT, 4, 1 },
       { FloatDIV, 12, 12 },
@@ -338,6 +352,38 @@ struct res_desc fu_config[] = {
     }
   },
 };
+
+
+//SREEK CHANGES + --- ADDED CONFIG ROM
+
+// 1st bit is INT_ALU
+//2nd bit is F_ALU
+//3rd bit is MEM_PORT
+//4th bit is FP_ADD
+//5th bit is FP_MUL_DIV
+
+#define NUM_CONFIG 9
+
+int fu_config_rom[][2] = { 1,1,
+			  1,1,
+			  1,1,
+			  1,1,
+			  1,0,
+			  0,1,
+			  1,1,
+			  1,0,
+			  0,1 };
+
+int curr_config[] = {1,1};
+
+
+//SREEK CHANGES - ADDED CONFIG ROM
+
+
+
+
+
+//each index of the array in the row can be identified using an enum
 
 
 /*
@@ -1484,6 +1530,7 @@ sim_load_prog(char *fname,		/* program to load */
     fatal("bad pipetrace args, use: <fname|stdout|stderr> <range>");
 
   /* finish initialization of the simulation engine */
+//SREEK NOTE . initialization starts here  ,for hte fu_pool
   fu_pool = res_create_pool("fu-pool", fu_config, N_ELT(fu_config));
   rslink_init(MAX_RS_LINKS);
   tracer_init();
@@ -2780,6 +2827,7 @@ ruu_issue(void)
 	      lsq_num_pop_count_cycle++;
 #endif
 	    }
+//SREEK-CHANGES ..most important section of code!!
 	  else
 	    {
 	      /* issue the instruction to a functional unit */
@@ -2791,7 +2839,7 @@ ruu_issue(void)
 		      /* got one! issue inst to functional unit */
 		      rs->issued = TRUE;
 		      /* reserve the functional unit */
-		      if (fu->master->busy)
+		      if (fu->master->busy) //SREEK this should never happen
 			panic("functional unit already in use");
 
 		      /* schedule functional unit release event */
@@ -4801,6 +4849,9 @@ sim_main(void)
 
   /* main simulator loop, NOTE: the pipe stages are traverse in reverse order
      to eliminate this/next state synchronization and relaxation problems */
+int dummy_counter = 0;
+
+	FILE *dump_file = fopen("dumpfile.txt","a");
   for (;;)
     {
       /* RUU/LSQ sanity checks */
@@ -4823,6 +4874,7 @@ sim_main(void)
       /* commit entries from RUU/LSQ to architected register file */
       ruu_commit();
 
+      //add some code here to see if its busy ,if not remove , if config rom sys so
       /* service function unit release events */
       ruu_release_fu();
 
@@ -4860,13 +4912,76 @@ sim_main(void)
 
       /* call instruction fetch unit if it is not blocked */
       if (!ruu_fetch_issue_delay)
-	ruu_fetch();
+	ruu_fetch(); 
       else
 	ruu_fetch_issue_delay--;
 
       /* Added by Wattch to update per-cycle power statistics */
       update_power_stats();
+	//SREEK CHANGES +
+      //update resources
 
+     /*
+      struct res_desc* old_pool = fu_pool->resources;	 
+      struct res_desc add_resource = {
+	"integer-ALU",
+	1,
+	0,
+	1,
+	{
+		{IntALU,1,1}
+	}
+	
+	};
+	struct res_desc add_resource2 = {
+   	 "memory-port",
+   	 1, 
+   	 0,
+	 1,
+   	 {
+   	   { RdPort, 1, 1 },
+   	   { WrPort, 1, 1 }
+   	 }
+  	};	
+	*/
+
+	if(dummy_counter < 8 && dummy_counter >1)
+	{
+
+//	printf("about to update counter!");
+//	fflush(stdout);
+ //     struct res_pool *new_fu_pool = res_update_pool_add("fu-pool",old_pool,add_resource,fu_pool->num_resources);
+//	new_fu_pool = res_update_pool_add("fu-pool",old_pool,add_resource2,fu_pool->num_resources);
+ //     fu_pool = new_fu_pool;
+
+	//count the number of ALU / MEM resources
+	//all these will count the no of activated == true flags
+
+	int int_alu_count = count_int_alus(fu_pool);
+	int int_mult_div_count = count_mult_div_alus(fu_pool);
+	int mem_ports = count_mem_ports(fu_pool);
+	int fp_adders = count_fp_adders(fu_pool);
+	int fp_mul_divs = count_fp_mul_divs(fu_pool);
+	int power_down_alu = 1; //for ALUS right now its a bin value
+	int desired_alus = 5; // depends on config rom
+
+	//check_config_rom(INT_ALU,power_down_alu,desired_alus); 
+	//depending on bit
+	//will return a value
+	
+	
+	//deactivate and update count
+	res_dump(fu_pool,dump_file); 
+	int temp_alu_count =0;
+	if(int_alu_count>desired_alus && power_down_alu)
+		temp_alu_count = deactivate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
+	if(temp_alu_count!=0)
+	int_alu_count = temp_alu_count;
+	}
+	dummy_counter++;
+
+	//SREEK CHANGES - 
+//*/
       /* update buffer occupancy stats */
       IFQ_count += fetch_num;
       IFQ_fcount += ((fetch_num == ruu_ifq_size) ? 1 : 0);
@@ -4882,4 +4997,7 @@ sim_main(void)
       if (max_insts && sim_num_insn >= max_insts)
 	return;
     }
+	
+	fclose(dump_file);
 }
+//void check_config_rom(enum fu_type futype,
