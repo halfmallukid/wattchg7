@@ -362,7 +362,13 @@ struct res_desc fu_config[] = {
 #define NUM_CONFIG 9
 #define MAX_FU_NUM_CONFIG 3
 //right now the fu_config_rom only has two bits
-
+int vdd_values[2][3] = { 3,4,5,
+			 2,3,4
+			 };
+int desired_num_values[2][2] = { 4,6,
+				4,6
+				};
+				
 int fu_config_rom[][2] = { 1,1,
 			  1,1,
 			  1,1,
@@ -375,7 +381,12 @@ int fu_config_rom[][2] = { 1,1,
 
 int curr_config[] = {1,1};
 
-struct config_rom fu_number_conf[] = {};
+struct config_rom conf_rom[] = { 
+				{
+				{1,1}, 		//bits for number of units
+				{1,1,1,1}	//bits for vdd values 
+				}		//adjacent 2 units represent 1 val
+				};
 
 enum rom_bit {
 I_ALU=0,

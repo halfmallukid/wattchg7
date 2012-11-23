@@ -56,12 +56,16 @@
 #include "host.h"
 #include "misc.h"
 #include "resource.h"
-int check_validity(int* bit_field,int index){
+
+extern int vdd_values[2][3]; //can be changed later
+extern int desired_num_values[2][3];
+
+int check_validity(int* bit_field,int index,int max_bits){
 	
 	int dec_val = 0;
 	int i = 0;
 
-	for(i=0;i<MAX_BITS;i++)
+	for(i=0;i<max_bits;i++)
 	{
 		dec_val += dec_val<<2 + bit_field[i];
 	}
@@ -71,6 +75,25 @@ int check_validity(int* bit_field,int index){
 
 	return 1;
 	
+}
+
+int return_vdd_value(struct config_rom rom_config,int cluster_index)
+{
+	int bit_val = 0;
+	bit_val = rom_config.vdd_bit_field[2*cluster_index];
+	bit_val += bit_val<<2 + rom_config.vdd_bit_field[2*cluster_index+1];
+
+	return vdd_values[cluster_index][bit_val];
+
+}
+
+int return_num_bits_value(struct config_rom rom_config,int cluster_index)
+{
+
+	int bit_val = 0;
+	bit_val = rom_config.num_bit_field[cluster_index];
+
+	return desired_num_values[cluster_index][bit_val];
 }
 
 /* update a resource pool USELESS ATM*/

@@ -78,14 +78,13 @@ FP_MUL_DIV
 //SREEK CHANGES -
 struct config_rom {
 
-	int bit_field[MAX_BITS]; // array of ints
+	int num_bit_field[MAX_BITS]; // array of ints
+	int vdd_bit_field[2*MAX_BITS]; //2 bits per component
+	
 };
-/*int get_current_config(struct config_rom *conf_rom)
-{
-	return conf_rom->curr_config;
-}*/
-
-int check_validity(int* bit_field,int index);
+int check_validity(int* bit_field,int index,int max_bits);
+int return_vdd_value(struct config_rom rom_config,int cluster_index);
+int return_num_value(struct config_rom rom_config,int cluster_index);
 
 /* resource descriptor */
 struct res_desc {
