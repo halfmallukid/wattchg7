@@ -381,11 +381,19 @@ int fu_config_rom[][2] = { 1,1,
 
 int curr_config[] = {1,1};
 
-struct config_rom conf_rom[] = { 
+struct config_rom conf_rom[3] = { 
 				{
 				{1,1}, 		//bits for number of units
 				{1,1,1,1}	//bits for vdd values 
-				}		//adjacent 2 units represent 1 val
+				},	//adjacent 2 units represent 1 val
+				{
+				{0,0},
+				{1,1,1,1},
+				},
+				{
+				{0,1},
+				{0,1,0,1}
+				}
 				};
 
 enum rom_bit {
