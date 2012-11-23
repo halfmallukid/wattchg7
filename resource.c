@@ -56,6 +56,22 @@
 #include "host.h"
 #include "misc.h"
 #include "resource.h"
+int check_validity(int* bit_field,int index){
+	
+	int dec_val = 0;
+	int i = 0;
+
+	for(i=0;i<MAX_BITS;i++)
+	{
+		dec_val += dec_val<<2 + bit_field[i];
+	}
+
+	if(dec_val!=index)
+	return 0;
+
+	return 1;
+	
+}
 
 /* update a resource pool USELESS ATM*/
 struct res_pool * res_update_pool_add(char *name,struct res_desc *old_pool,struct res_desc add_resource,int ndesc)

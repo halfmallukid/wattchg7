@@ -358,11 +358,10 @@ struct res_desc fu_config[] = {
 
 // 1st bit is INT_ALU
 //2nd bit is F_ALU
-//3rd bit is MEM_PORT
-//4th bit is FP_ADD
-//5th bit is FP_MUL_DIV
 
 #define NUM_CONFIG 9
+#define MAX_FU_NUM_CONFIG 3
+//right now the fu_config_rom only has two bits
 
 int fu_config_rom[][2] = { 1,1,
 			  1,1,
@@ -375,6 +374,13 @@ int fu_config_rom[][2] = { 1,1,
 			  0,1 };
 
 int curr_config[] = {1,1};
+
+struct config_rom fu_number_conf[] = {};
+
+enum rom_bit {
+I_ALU=0,
+F_ALU
+}; 
 
 
 //SREEK CHANGES - ADDED CONFIG ROM

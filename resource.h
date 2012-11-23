@@ -68,7 +68,24 @@ MEM_PORT,
 FP_ADD,
 FP_MUL_DIV
 };
+
+#define MAX_BITS 2
+
+//struct bit_conf {
+//	int value;
+//};
+
 //SREEK CHANGES -
+struct config_rom {
+
+	int bit_field[MAX_BITS]; // array of ints
+};
+/*int get_current_config(struct config_rom *conf_rom)
+{
+	return conf_rom->curr_config;
+}*/
+
+int check_validity(int* bit_field,int index);
 
 /* resource descriptor */
 struct res_desc {
