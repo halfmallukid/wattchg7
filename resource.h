@@ -84,7 +84,13 @@ struct config_rom {
 };
 int check_validity(int* bit_field,int index,int max_bits);
 int return_vdd_value(struct config_rom rom_config,int cluster_index);
-int return_num_value(struct config_rom rom_config,int cluster_index);
+int return_num_bits_value(struct config_rom rom_config,int cluster_index);
+int* get_curr_vdd_config();
+int* get_vdd_config(int index);
+int* get_curr_num_config();
+int* get_num_config(int index);
+int get_num_config_for_cluster(int index,int cluster_index);
+int* get_vdd_config_for_cluster(int index,int cluster_index);
 
 /* resource descriptor */
 struct res_desc {
