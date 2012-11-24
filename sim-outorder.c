@@ -362,7 +362,7 @@ struct res_desc fu_config[] = {
 #define NUM_CONFIG 9
 #define MAX_FU_NUM_CONFIG 3
 //right now the fu_config_rom only has two bits
-int vdd_values[2][4] = { 1,3,4,5,
+float vdd_values[2][4] = { 1,3,4,5,
 			 1,2,3,4
 			 };
 int desired_num_values[2][2] = { 4,6,
@@ -4989,7 +4989,9 @@ int dummy_counter = 0;
 	int fp_mul_divs = count_fp_mul_divs(fu_pool);
 	int power_down_alu = 1; //for ALUS right now its a bin value
 	int desired_alus = 5; // depends on config rom
-
+        int cluster_index = 0 ;  //integer index;
+	int config_bit_value = get_num_config_for_cluster(curr_config_rom_index,cluster_index);
+	desired_alus = desired_num_values[cluster_index][config_bit_value]; 
 	//check_config_rom(INT_ALU,power_down_alu,desired_alus); 
 	//depending on bit
 	//will return a value

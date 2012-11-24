@@ -59,6 +59,8 @@
 
 extern int vdd_values[2][3]; //can be changed later
 extern int desired_num_values[2][3];
+extern struct config_rom conf_rom[3];
+extern int curr_config_rom_index;
 
 int check_validity(int* bit_field,int index,int max_bits){
 	
@@ -75,6 +77,30 @@ int check_validity(int* bit_field,int index,int max_bits){
 
 	return 1;
 	
+}
+int* get_curr_num_config()
+{
+	return conf_rom[curr_config_rom_index].num_bit_field;
+}
+int* get_curr_vdd_config()
+{
+	return conf_rom[curr_config_rom_index].vdd_bit_field;
+}
+int* get_vdd_config(int index)
+{
+	return conf_rom[index].vdd_bit_field;
+}
+int* get_num_config(int index)
+{
+	return conf_rom[index].num_bit_field;
+}
+int* get_vdd_config_for_cluster(int index,int cluster_index)
+{
+	return conf_rom[index].vdd_bit_field[2*cluster_index];
+}
+int get_num_config_for_cluster(int index,int cluster_index)
+{
+	return conf_rom[index].num_bit_field[cluster_index];
 }
 
 int return_vdd_value(struct config_rom rom_config,int cluster_index)
