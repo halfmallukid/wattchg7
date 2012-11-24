@@ -146,6 +146,7 @@ int count_mem_ports(struct res_pool *res_pool);
 int count_fp_adders(struct res_pool *res_pool);
 int count_fp_mul_divs(struct res_pool *res_pool);
 int deactivate_alus_to(const int desired_target,int curr_num,enum fu_type target_type,struct res_pool *fu_pool);
+int activate_alus_to(const int desired_target,int curr_num,enum fu_type target_type,struct res_pool *fu_pool);
 int deactivate_first_free_fu(enum fu_type fu_type,int curr_num,const int desired_target,struct res_pool *fu_pool);
 
 

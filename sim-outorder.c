@@ -5004,8 +5004,16 @@ int dummy_counter = 0;
 	//deactivate and update count
 	res_dump(fu_pool,dump_file); 
 	int temp_alu_count =0;
+	//might need total alus field for deactivate and activate function
 	if(int_alu_count>desired_alus && power_down_alu)
+	{
 		temp_alu_count = deactivate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
+	}
+        else if(int_alu_count<desired_alus && !power_down_alu)
+	{
+		temp_alu_count = activate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
+	}
+		
 	if(temp_alu_count!=0)
 	int_alu_count = temp_alu_count;
 	}
