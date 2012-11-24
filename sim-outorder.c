@@ -379,7 +379,7 @@ int fu_config_rom[][2] = { 1,1,
 			  1,0,
 			  0,1 };
 
-int curr_config_rom_index = 1; //make it change to zero
+int curr_config_rom_index = 0; //make it change to zero
 
 struct config_rom conf_rom[3] = { 
 				{
@@ -4991,7 +4991,11 @@ int dummy_counter = 0;
 	int desired_alus = 5; // depends on config rom
         int cluster_index = 0 ;  //integer index;
 	int config_bit_value = get_num_config_for_cluster(curr_config_rom_index,cluster_index);
+	power_down_alu = !config_bit_value;
+	fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
 	desired_alus = desired_num_values[cluster_index][config_bit_value]; 
+        fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
+
 	//check_config_rom(INT_ALU,power_down_alu,desired_alus); 
 	//depending on bit
 	//will return a value

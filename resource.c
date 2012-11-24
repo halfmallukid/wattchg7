@@ -496,6 +496,8 @@ res_dump(struct res_pool *pool, FILE *stream)
 
   fprintf(stream, "Resource pool: %s:\n", pool->name);
   fprintf(stream, "\tcontains %d resource instances\n", pool->num_resources);
+  fprintf(stream, "WTF WTF WTF\n");
+  
   for (i=0; i<MAX_RES_CLASSES; i++)
     {
       fprintf(stream, "\tclass: %d: %d matching instances\n",
