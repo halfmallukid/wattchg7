@@ -379,7 +379,7 @@ int fu_config_rom[][2] = { 1,1,
 			  1,0,
 			  0,1 };
 
-int curr_config_rom_index = 0; //make it change to zero
+int curr_config_rom_index = 1; //make it change to zero
 
 struct config_rom conf_rom[3] = { 
 				{
@@ -4973,12 +4973,6 @@ int dummy_counter = 0;
 	if(dummy_counter < 8 && dummy_counter >1)
 	{
 
-//	printf("about to update counter!");
-//	fflush(stdout);
- //     struct res_pool *new_fu_pool = res_update_pool_add("fu-pool",old_pool,add_resource,fu_pool->num_resources);
-//	new_fu_pool = res_update_pool_add("fu-pool",old_pool,add_resource2,fu_pool->num_resources);
- //     fu_pool = new_fu_pool;
-
 	//count the number of ALU / MEM resources
 	//all these will count the no of activated == true flags
 
@@ -4990,21 +4984,32 @@ int dummy_counter = 0;
 	int power_down_alu = 1; //for ALUS right now its a bin value
 	int desired_alus = 5; // depends on config rom
         int cluster_index = 0 ;  //integer index;
+	int temp_alu_count =0;
+	
+
+	if(dummy_counter>3)
+		curr_config_rom_index = 0;
+
+
+	//GET CONFIG ROM VALUE HERE
+
 	int config_bit_value = get_num_config_for_cluster(curr_config_rom_index,cluster_index);
 	power_down_alu = !config_bit_value;
+
 	fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
+
+	//GET THE NUMBER TO REDUCE FUs TO HERE
+
 	desired_alus = desired_num_values[cluster_index][config_bit_value]; 
+
         fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
 
-	//check_config_rom(INT_ALU,power_down_alu,desired_alus); 
-	//depending on bit
-	//will return a value
-	
-	
-	//deactivate and update count
+	//DUMP THE PREVIOUS INFO HERE 
+
 	res_dump(fu_pool,dump_file); 
-	int temp_alu_count =0;
-	//might need total alus field for deactivate and activate function
+
+	//UPDATE THE FU CLUSTER COUNT DEPENDING ON THE CONFIG ROM
+
 	if(int_alu_count>desired_alus && power_down_alu)
 	{
 		temp_alu_count = deactivate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
@@ -5014,8 +5019,7 @@ int dummy_counter = 0;
 		temp_alu_count = activate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
 	}
 		
-	if(temp_alu_count!=0)
-	int_alu_count = temp_alu_count;
+
 	}
 	dummy_counter++;
 
