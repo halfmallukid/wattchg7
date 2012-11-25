@@ -4969,6 +4969,15 @@ int dummy_counter = 0;
    	 }
   	};	
 	*/
+	int int_alu_count ;
+	int int_mult_div_count ;
+	int mem_ports ;
+	int fp_adders ;
+	int fp_mul_divs ;
+	int power_down_alu = 1; //for ALUS right now its a bin value
+	int desired_alus = 5; // depends on config rom
+        int cluster_index = 0 ;  //integer index;
+	int temp_alu_count =0;
 
 	if(dummy_counter < 8 && dummy_counter >1)
 	{
@@ -4976,15 +4985,13 @@ int dummy_counter = 0;
 	//count the number of ALU / MEM resources
 	//all these will count the no of activated == true flags
 
-	int int_alu_count = count_int_alus(fu_pool);
-	int int_mult_div_count = count_mult_div_alus(fu_pool);
-	int mem_ports = count_mem_ports(fu_pool);
-	int fp_adders = count_fp_adders(fu_pool);
-	int fp_mul_divs = count_fp_mul_divs(fu_pool);
-	int power_down_alu = 1; //for ALUS right now its a bin value
-	int desired_alus = 5; // depends on config rom
-        int cluster_index = 0 ;  //integer index;
-	int temp_alu_count =0;
+	 int_alu_count = count_int_alus(fu_pool);
+	 int_mult_div_count = count_mult_div_alus(fu_pool);
+	 mem_ports = count_mem_ports(fu_pool);
+	 fp_adders = count_fp_adders(fu_pool);
+	 fp_mul_divs = count_fp_mul_divs(fu_pool);
+         cluster_index = 0 ;  //integer index;
+	 temp_alu_count =0;
 	
 
 	if(dummy_counter>3)
