@@ -302,7 +302,7 @@ static int bugcompat_mode;
 struct res_desc fu_config[] = {
   {
     "integer-ALU",
-    6,
+    2,
     0,
     1,
     {
@@ -311,7 +311,7 @@ struct res_desc fu_config[] = {
   },
   {
     "integer-MULT/DIV",
-    4,
+    1,
     0,
     1,
     {
@@ -321,7 +321,7 @@ struct res_desc fu_config[] = {
   },
   {
     "memory-port",
-    6, 
+    2, 
     0,
     1,
     {
@@ -342,7 +342,7 @@ struct res_desc fu_config[] = {
   },
   {
     "FP-MULT/DIV",
-    6,
+    1,
     0,
     1,
     {
@@ -365,8 +365,8 @@ struct res_desc fu_config[] = {
 float vdd_values[2][4] = { 1,3,4,5,
 			 1,2,3,4
 			 };
-int desired_num_values[2][2] = { 4,6,
-				4,6
+int desired_num_values[2][2] = { 1,2,
+				1,2
 				};
 				
 int fu_config_rom[][2] = { 1,1,
@@ -380,18 +380,22 @@ int fu_config_rom[][2] = { 1,1,
 			  0,1 };
 
 int curr_config_rom_index = 1; //make it change to zero
+int config_rom_falu_access;
+int config_rom_ialu_access;
+int config_rom_falu_miss;
+int config_rom_ialu_miss;
 
 struct config_rom conf_rom[3] = { 
 				{
-				{1,0}, 		//bits for number of units
-				{1,1,1,1}	//bits for vdd values 
+				{0,0}, 		//bits for number of units
+				{0,0,0,0}	//bits for vdd values 
 				},	//adjacent 2 units represent 1 val
 				{
-				{0,0},
+				{1,0},
 				{0,0,0,0},
 				},
 				{
-				{0,1},
+				{1,1},
 				{0,1,0,1}
 				}
 				};
@@ -1314,6 +1318,7 @@ void
 sim_reg_stats(struct stat_sdb_t *sdb)   /* stats database */
 {
   int i;
+
   stat_reg_counter(sdb, "sim_num_insn",
 		   "total number of instructions committed",
 		   &sim_num_insn, sim_num_insn, NULL);
@@ -1351,6 +1356,19 @@ sim_reg_stats(struct stat_sdb_t *sdb)   /* stats database */
   stat_reg_counter(sdb, "sim_total_branches",
 		   "total number of branches executed",
 		   &sim_total_branches, /* initial value */0, /* format */NULL);
+stat_reg_counter(sdb, "config_rom_falu_access",
+		   "total number of branches executed",
+		   &config_rom_falu_access, /* initial value */0, /* format */NULL);
+stat_reg_counter(sdb, "config_rom_ialu_access",
+		   "total number of branches executed",
+		   &config_rom_ialu_access, /* initial value */0, /* format */NULL);
+
+stat_reg_counter(sdb, "config_rom_falu_miss",
+		   "total number of branches executed",
+		   &config_rom_falu_miss, /* initial value */0, /* format */NULL);
+stat_reg_counter(sdb, "config_rom_ialu_miss",
+		   "total number of branches executed",
+		   &config_rom_ialu_miss, /* initial value */0, /* format */NULL);
 
   /* register performance stats */
   stat_reg_counter(sdb, "sim_cycle",
@@ -2975,9 +2993,15 @@ ruu_issue(void)
 			  alu_access++;
 
 			  if((MD_OP_FLAGS(rs->op) & (F_FCOMP))== (F_FCOMP))
+		        	{
+			    config_rom_falu_access++;
 			    falu_access++;
+				}
 			  else
+			  {
+			     config_rom_ialu_access++;
 			    ialu_access++;
+			    }
 
 			  /* use deterministic functional unit latency */
 			  eventq_queue_event(rs, sim_cycle + fu->oplat);
@@ -3005,6 +3029,15 @@ ruu_issue(void)
 		      /* insufficient functional unit resources, put operation
 			 back onto the ready list, we'll try to issue it
 			 again next cycle */
+			 if((MD_OP_FLAGS(rs->op) & (F_FCOMP))== (F_FCOMP))
+		       	{
+				config_rom_falu_miss++;
+			}
+		        else
+		  	 {
+			 	config_rom_ialu_miss++;
+			    }
+
 		      readyq_enqueue(rs);
 		    }
 		}
@@ -4979,8 +5012,8 @@ int dummy_counter = 0;
         int cluster_index = 0 ;  //integer index;
 	int temp_alu_count =0;
 
-	if(dummy_counter < 8 && dummy_counter >1)
-	{
+//	if(dummy_counter < 8 && dummy_counter >1)
+//	{
 
 	//count the number of ALU / MEM resources
 	//all these will count the no of activated == true flags
@@ -4992,31 +5025,48 @@ int dummy_counter = 0;
 	 fp_mul_divs = count_fp_mul_divs(fu_pool);
          cluster_index = 0 ;  //integer index;
 	 temp_alu_count =0;
-	
 
-	if(dummy_counter>3)
-		curr_config_rom_index = 0;
+	
+	 float thresh_ialu ;
+	 if(config_rom_ialu_access>0)
+	 thresh_ialu = config_rom_ialu_miss/config_rom_ialu_access;
+
+	  int old_config_rom_index = curr_config_rom_index;
+
+	 if(thresh_ialu > 0.04)
+	 	curr_config_rom_index = 1;
+	 else
+	 	curr_config_rom_index = 0;
+	
 
 
 	//GET CONFIG ROM VALUE HERE
 
 	int config_bit_value = get_num_config_for_cluster(curr_config_rom_index,cluster_index);
 	power_down_alu = !config_bit_value;
-
-	fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
+	
 
 	//GET THE NUMBER TO REDUCE FUs TO HERE
 
 	desired_alus = desired_num_values[cluster_index][config_bit_value]; 
 
-        fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
 
 	//DUMP THE PREVIOUS INFO HERE 
 
+
+
+	//LOG EVERY TIME THE SWITCH HAPPENS
+	if(old_config_rom_index != curr_config_rom_index && (dummy_counter >= 100000 ))
+	{
+		dummy_counter = 0;
 	res_dump(fu_pool,dump_file); 
+	fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
+        fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
+		
+	}
+	
 
 	//UPDATE THE FU CLUSTER COUNT DEPENDING ON THE CONFIG ROM
-
 	if(int_alu_count>desired_alus && power_down_alu)
 	{
 		temp_alu_count = deactivate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
@@ -5027,7 +5077,7 @@ int dummy_counter = 0;
 	}
 		
 
-	}
+	//}
 	dummy_counter++;
 
 	//SREEK CHANGES - 
