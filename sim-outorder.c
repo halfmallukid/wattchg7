@@ -302,7 +302,7 @@ static int bugcompat_mode;
 struct res_desc fu_config[] = {
   {
     "integer-ALU",
-    2,
+    6,
     0,
     1,
     {
@@ -311,7 +311,7 @@ struct res_desc fu_config[] = {
   },
   {
     "integer-MULT/DIV",
-    1,
+    6,
     0,
     1,
     {
@@ -321,7 +321,7 @@ struct res_desc fu_config[] = {
   },
   {
     "memory-port",
-    2, 
+    4, 
     0,
     1,
     {
@@ -331,7 +331,7 @@ struct res_desc fu_config[] = {
   },
   {
     "FP-adder",
-    4,
+    6,
     0,
     1,
     {
@@ -342,7 +342,7 @@ struct res_desc fu_config[] = {
   },
   {
     "FP-MULT/DIV",
-    1,
+    6,
     0,
     1,
     {
@@ -365,8 +365,8 @@ struct res_desc fu_config[] = {
 float vdd_values[2][4] = { 1,3,4,5,
 			 1,2,3,4
 			 };
-int desired_num_values[2][2] = { 1,2,
-				1,2
+int desired_num_values[2][2] = { 3,6,
+				3,6
 				};
 				
 int fu_config_rom[][2] = { 1,1,
@@ -5033,7 +5033,7 @@ int dummy_counter = 0;
 
 	  int old_config_rom_index = curr_config_rom_index;
 
-	 if(thresh_ialu > 0.04)
+	 if(thresh_ialu > 0.01)
 	 	curr_config_rom_index = 1;
 	 else
 	 	curr_config_rom_index = 0;
@@ -5059,9 +5059,9 @@ int dummy_counter = 0;
 	if(old_config_rom_index != curr_config_rom_index && (dummy_counter >= 100000 ))
 	{
 		dummy_counter = 0;
-	res_dump(fu_pool,dump_file); 
-	fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
-        fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
+	//res_dump(fu_pool,dump_file); 
+	//fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
+        //fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
 		
 	}
 	

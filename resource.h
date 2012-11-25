@@ -91,7 +91,7 @@ int* get_curr_num_config();
 int* get_num_config(int index);
 int get_num_config_for_cluster(int index,int cluster_index);
 int* get_vdd_config_for_cluster(int index,int cluster_index);
-
+void fill_config_rom();
 /* resource descriptor */
 struct res_desc {
   char *name;				/* name of functional unit */
