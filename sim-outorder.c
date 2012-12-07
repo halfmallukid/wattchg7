@@ -5005,13 +5005,18 @@ int dummy_counter = 0;
 	int int_alu_count ;
 	int int_mult_div_count ;
 	int mem_ports ;
-	int fp_adders ;
-	int fp_mul_divs ;
+	int fp_adders_count ;
+	int fp_mul_divs_count ;
 	int power_down_alu = 1; //for ALUS right now its a bin value
-	int desired_alus = 5; // depends on config rom
+	int power_down_falu = 1;
+	int desired_alus = 4; // depends on config rom
+	int desired_falus=4;
         int cluster_index = 0 ;  //integer index;
+	int f_cluster_index = 0;
 	int temp_alu_count =0;
-
+	int temp_mult_alu_count;
+	int temp_falu_mul_div_count = 0;
+	int temp_falu_adder_count = 0;
 //	if(dummy_counter < 8 && dummy_counter >1)
 //	{
 
@@ -5021,10 +5026,13 @@ int dummy_counter = 0;
 	 int_alu_count = count_int_alus(fu_pool);
 	 int_mult_div_count = count_mult_div_alus(fu_pool);
 	 mem_ports = count_mem_ports(fu_pool);
-	 fp_adders = count_fp_adders(fu_pool);
-	 fp_mul_divs = count_fp_mul_divs(fu_pool);
+	 fp_adders_count = count_fp_adders(fu_pool);
+	 fp_mul_divs_count = count_fp_mul_divs(fu_pool);
          cluster_index = 0 ;  //integer index;
+	 f_cluster_index = 1; //float index
 	 temp_alu_count =0;
+	 temp_mult_alu_count = 0;
+	 
 
 	
 	 float thresh_ialu=1;
@@ -5034,7 +5042,7 @@ int dummy_counter = 0;
 
 	  int old_config_rom_index = curr_config_rom_index;
 
-	 if(thresh_ialu > 0.01)
+	 if(thresh_ialu > 0.1) //change this threshold
 	 	curr_config_rom_index = 1;
 	 else
 	 	curr_config_rom_index = 0;
@@ -5043,13 +5051,15 @@ int dummy_counter = 0;
 
 	//GET CONFIG ROM VALUE HERE
 
-	int config_bit_value = get_num_config_for_cluster(curr_config_rom_index,cluster_index);
-	power_down_alu = !config_bit_value;
+	int config_i_bit_value = get_num_config_for_cluster(curr_config_rom_index,cluster_index);
+	power_down_alu = !config_i_bit_value;
 	
-
+	int config_f_bit_value = get_num_config_for_cluster(curr_config_rom_index,f_cluster_index);
+	power_down_falu = !config_i_bit_value;
 	//GET THE NUMBER TO REDUCE FUs TO HERE
 
-	desired_alus = desired_num_values[cluster_index][config_bit_value]; 
+	desired_alus = desired_num_values[cluster_index][config_i_bit_value]; 
+	desired_falus = desired_num_values[f_cluster_index][config_f_bit_value];
 
 
 	//DUMP THE PREVIOUS INFO HERE 
@@ -5062,7 +5072,7 @@ int dummy_counter = 0;
 	{
 		dummy_counter = 0;
 		res_dump(fu_pool,dump_file); 
-		fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
+		fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_i_bit_value,power_down_alu);
         	fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
 		fprintf(dump_file,"thresh_alu is %f",thresh_ialu);
 		
@@ -5070,15 +5080,33 @@ int dummy_counter = 0;
 	
 
 	//UPDATE THE FU CLUSTER COUNT DEPENDING ON THE CONFIG ROM
-
-	if(int_alu_count>desired_alus && power_down_alu)
+	//the integer part 
+	if((int_alu_count>desired_alus || int_mult_div_count > desired_alus) && power_down_alu)
 	{
 		temp_alu_count = deactivate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
+		temp_mult_alu_count = deactivate_alus_to(desired_alus,int_mult_div_count,INT_MUL_DIV,fu_pool);
 	}
-        else if(int_alu_count<desired_alus && !power_down_alu)
+        else if((int_alu_count<desired_alus || int_alu_count < int_mult_div_count)&& !power_down_alu)
 	{
+		//maps two functional units
 		temp_alu_count = activate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
+		temp_mult_alu_count = activate_alus_to(desired_alus,int_mult_div_count,INT_MUL_DIV,fu_pool);
 	}
+
+	//the floating point part
+	if((fp_adders_count<desired_falus ||fp_mul_divs_count < desired_falus ) && !power_down_falu)
+	{
+		temp_falu_adder_count = activate_alus_to(desired_falus,fp_adders_count,FP_ADD,fu_pool);
+		temp_falu_mul_div_count = activate_alus_to(desired_falus,fp_mul_divs_count,FP_MUL_DIV,fu_pool);
+	}
+	else if((fp_adders_count > desired_falus || fp_mul_divs_count > desired_falus )&& power_down_falu)
+	{
+		temp_falu_adder_count = deactivate_alus_to(desired_falus,fp_adders_count,FP_ADD,fu_pool);
+		temp_falu_mul_div_count = deactivate_alus_to(desired_falus,fp_mul_divs_count,FP_MUL_DIV,fu_pool);
+	}
+//fp_adders
+//fp_mul_divs
+	
 		
 
 	//}
