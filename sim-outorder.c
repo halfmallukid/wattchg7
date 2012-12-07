@@ -366,11 +366,11 @@ float vdd_values[2][4] = { 1,3,4,5,
 			 1,2,3,4
 			 };
 int desired_num_values[2][2] = { 3,6,
-				3,6
+				2,3
 				};
 				
 int fu_config_rom[][2] = { 1,1,
-			  1,1,
+			  0,1,
 			  1,1,
 			  1,1,
 			  1,0,
@@ -5027,9 +5027,10 @@ int dummy_counter = 0;
 	 temp_alu_count =0;
 
 	
-	 float thresh_ialu ;
+	 float thresh_ialu=1;
 	 if(config_rom_ialu_access>0)
-	 thresh_ialu = config_rom_ialu_miss/config_rom_ialu_access;
+	 thresh_ialu = (float)config_rom_ialu_miss/(float)config_rom_ialu_access;
+	 //thresh_ialu = config_rom_ialu_miss/config_rom_ialu_access;
 
 	  int old_config_rom_index = curr_config_rom_index;
 
@@ -5056,17 +5057,20 @@ int dummy_counter = 0;
 
 
 	//LOG EVERY TIME THE SWITCH HAPPENS
-	if(old_config_rom_index != curr_config_rom_index && (dummy_counter >= 100000 ))
+	//TODO extend this to floating point
+	if(old_config_rom_index != curr_config_rom_index && dummy_counter > 100000)
 	{
 		dummy_counter = 0;
-	//res_dump(fu_pool,dump_file); 
-	//fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
-        //fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
+		res_dump(fu_pool,dump_file); 
+		fprintf(dump_file,"config bit value is %d and power_down alu is %d \n",config_bit_value,power_down_alu);
+        	fprintf(dump_file,"desired number of alus is %d\n",desired_alus);
+		fprintf(dump_file,"thresh_alu is %f",thresh_ialu);
 		
 	}
 	
 
 	//UPDATE THE FU CLUSTER COUNT DEPENDING ON THE CONFIG ROM
+
 	if(int_alu_count>desired_alus && power_down_alu)
 	{
 		temp_alu_count = deactivate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
@@ -5092,7 +5096,12 @@ int dummy_counter = 0;
 
       /* go to next cycle */
       sim_cycle++;
-
+      if(sim_cycle > 1000000)
+	{
+	sim_print_stats(stdout);
+	fclose(dump_file);
+	return ;
+	}
       /* finish early? */
       if (max_insts && sim_num_insn >= max_insts)
 	return;
