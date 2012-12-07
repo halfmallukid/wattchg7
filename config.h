@@ -1,1 +1,1 @@
-target-alpha/config.h
+target-pisa/config.h
