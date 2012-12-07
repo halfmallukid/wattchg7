@@ -56,12 +56,17 @@
 #include "host.h"
 #include "misc.h"
 #include "resource.h"
+#define FU_IALU_INDEX 0
 
 extern int vdd_values[2][3]; //can be changed later
 extern int desired_num_values[2][3];
 extern struct config_rom conf_rom[3];
 extern int curr_config_rom_index;
+extern struct res_desc fu_config[];
 
+void fill_config_rom()
+{
+}
 int check_validity(int* bit_field,int index,int max_bits){
 	
 	int dec_val = 0;
@@ -292,32 +297,37 @@ int count_fp_mul_divs(struct res_pool *res_pool)
 
 	return fp_mul_divs_counter;
 }
+
+int activate_alus_to(const int desired_target,int curr_num,enum fu_type target_type,struct res_pool *fu_pool)
+{
+	int updated_num = 0;
+
+		updated_num = curr_num;
+		if(curr_num  >= desired_target )
+		{
+			return 0;
+		}
+		else
+		{
+			updated_num = activate_first_free_fu(target_type,curr_num,desired_target,fu_pool);
+		}
+		
+	return updated_num;
+
+}
+
 int deactivate_alus_to(const int desired_target,int curr_num,enum fu_type target_type,struct res_pool *fu_pool)
 {
 	int updated_num = 0;
 
 		updated_num = curr_num;
-	//	printf("updated num is = %d and curr_num = %d desired target is %d!!!",updated_num,curr_num,desired_target);
 		if(curr_num  <= desired_target )
 		{
-		//	fflush(stdout);
-		//	printf("nothing to deactivate!!!!!");
-		//	fflush(stdout);
 			return 0;
 		}
 		else
 		{
 			updated_num = deactivate_first_free_fu(target_type,curr_num,desired_target,fu_pool);
-		//	if(updated_num > desired_target)
-		//	{
-			//	printf("not all resources were free!!!!");
-			//	fflush(stdout);
-		//	}
-		//	else
-		//	{
-		//		printf("target acheived!!!!");
-		//		fflush(stdout);
-		//	}
 		}
 		
 	return updated_num;
@@ -359,6 +369,53 @@ int deactivate_first_free_fu(enum fu_type fu_type,int curr_num,const int desired
 		{
 			fu_res[i].active = 0;	
 			curr_num = curr_num - 1;
+		}
+	}
+
+	}
+
+	return curr_num;
+
+}
+int activate_first_free_fu(enum fu_type fu_type,int curr_num,const int desired_target,struct res_pool* fu_pool)
+{
+	//F_IALU_INDEX
+	char fu_string[32];
+	memset(fu_string,0,32);
+	int total_num = fu_config[FU_IALU_INDEX].quantity;
+	int num_res = total_num;
+	struct res_desc *fu_res = fu_pool->resources;
+
+	switch(fu_type)
+	{
+		case INT_ALU:
+		strcpy(fu_string,"integer-ALU");
+			break;
+		case INT_MUL_DIV:
+			strcpy(fu_string,"integer-MULT/DIV");
+			break;
+		case MEM_PORT:
+			strcpy(fu_string,"memory-port");
+			break;
+		case FP_ADD:
+			strcpy(fu_string,"FP-adder");
+			break;
+		case FP_MUL_DIV:
+			strcpy(fu_string,"FP-MULT/DIV");
+			break;
+		default:
+			strcpy(fu_string,"integer-ALU");
+	}	
+	int i;
+	for(i = 0;i<num_res;i++)
+	{
+	
+	if(!strncmp(fu_res[i].name,fu_string,strlen(fu_string)))
+	{
+		if(fu_res[i].busy == 0 && fu_res[i].active == 0 && curr_num <desired_target)
+		{
+			fu_res[i].active = 1;	
+			curr_num = curr_num + 1;
 		}
 	}
 

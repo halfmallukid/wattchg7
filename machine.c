@@ -1,1 +1,1 @@
-target-alpha/alpha.c
+target-pisa/pisa.c

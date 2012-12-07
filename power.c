@@ -629,7 +629,8 @@ power_reg_stats(struct stat_sdb_t *sdb)	/* stats database */
   stat_reg_double(sdb, "rename_power", "total power usage of rename unit", &rename_power, 0, NULL);
 
   stat_reg_double(sdb, "bpred_power", "total power usage of bpred unit", &bpred_power, 0, NULL);
-
+  stat_reg_double(sdb, "ialu_access", "integer alu accessed ",&ialu_access,0,NULL);
+  stat_reg_double(sdb, "falu_access", "floating alu accessed",&falu_access,0,NULL);
   stat_reg_double(sdb, "window_power", "total power usage of instruction window", &window_power, 0, NULL);
 
   stat_reg_double(sdb, "lsq_power", "total power usage of load/store queue", &lsq_power, 0, NULL);

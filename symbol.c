@@ -1,1 +1,1 @@
-target-alpha/symbol.c
+target-pisa/symbol.c
