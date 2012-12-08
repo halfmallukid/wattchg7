@@ -5058,7 +5058,7 @@ int dummy_counter = 0;
 
 	  int old_config_rom_index = curr_config_rom_index;
 
-	 if(thresh_ialu > 0.001) //change this threshold
+	 if(thresh_ialu > 0.0001) //change this threshold
 	{
 		int* config = get_curr_num_config();
 	//	printf("old curr_config_rom_index is %d\n",curr_config_rom_index);
@@ -5181,7 +5181,7 @@ int dummy_counter = 0;
 	sim_print_stats(stdout);
 	fclose(dump_file);
 	return ;
-	}
+	} 
       /* finish early? */
       if (max_insts && sim_num_insn >= max_insts)
 	return;
