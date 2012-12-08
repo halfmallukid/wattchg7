@@ -366,10 +366,10 @@ float vdd_values[2][4] = { 1,3,4,5,
 			 1,2,3,4
 			 };
 int desired_num_values[2][2] = { 3,6,
-				2,3
+				1,1
 				};
 				
-int fu_config_rom[][2] = { 1,1,
+/*int fu_config_rom[][2] = { 1,1,
 			  0,1,
 			  1,1,
 			  1,1,
@@ -377,22 +377,35 @@ int fu_config_rom[][2] = { 1,1,
 			  0,1,
 			  1,1,
 			  1,0,
-			  0,1 };
+			  0,1 }; */
+/*int fu_config_rom[][2] = { 0,0,
+			  0,1,
+			  1,0,
+			  1,1,
+			  1,0,
+			  0,1,
+			  1,1,
+			  1,0,
+			  0,1 }; */
+int curr_config_rom_index = 3; //make it change to zero
+counter_t config_rom_falu_access = 0;
+int config_rom_ialu_access =0;
+counter_t config_rom_falu_miss = 0;
+int config_rom_ialu_miss = 0;
 
-int curr_config_rom_index = 1; //make it change to zero
-int config_rom_falu_access;
-int config_rom_ialu_access;
-int config_rom_falu_miss;
-int config_rom_ialu_miss;
 
-struct config_rom conf_rom[3] = { 
+struct config_rom conf_rom[4] = { 
 				{
 				{0,0}, 		//bits for number of units
 				{0,0,0,0}	//bits for vdd values 
 				},	//adjacent 2 units represent 1 val
 				{
-				{1,0},
+				{0,1},
 				{0,0,0,0},
+				},
+				{
+				 {1,0},
+				 {0,0,0,0},
 				},
 				{
 				{1,1},
@@ -5036,19 +5049,58 @@ int dummy_counter = 0;
 
 	
 	 float thresh_ialu=1;
+	 float thresh_falu = 1;
 	 if(config_rom_ialu_access>0)
 	 thresh_ialu = (float)config_rom_ialu_miss/(float)config_rom_ialu_access;
+	 if(config_rom_falu_access>0)
+	 thresh_falu = (counter_t)config_rom_falu_miss/(counter_t)config_rom_falu_access;
 	 //thresh_ialu = config_rom_ialu_miss/config_rom_ialu_access;
 
 	  int old_config_rom_index = curr_config_rom_index;
 
-	 if(thresh_ialu > 0.1) //change this threshold
-	 	curr_config_rom_index = 1;
-	 else
-	 	curr_config_rom_index = 0;
+	 if(thresh_ialu > 0.001) //change this threshold
+	{
+		int* config = get_curr_num_config();
+	//	printf("old curr_config_rom_index is %d\n",curr_config_rom_index);
+		config[0] = 1;
+		curr_config_rom_index = update_config_rom_index(2,config);
+	//	printf("curr_config_rom_index is %d\n",curr_config_rom_index);
+	//	printf("config 0 is %d config 1 is %d\n",config[0],config[1]);
+	//	fflush(stdout);
+	}
+	 else if(thresh_ialu < 0.00001)	//this must have been else 0
+	{
+		int* config = get_curr_num_config();
+		//printf("old curr_config_rom_index is %d\n",curr_config_rom_index);
+		config[0] = 0;
+		curr_config_rom_index = update_config_rom_index(2,config);
+	//	printf("curr_config_rom_index is %d\n",curr_config_rom_index);
+	//	printf("config 0 is %d config 1 is %d\n",config[0],config[1]);
+	//	fflush(stdout);
+
+	}
 	
 
-
+	if(thresh_falu>0.00001)
+	{
+		int* config = get_curr_num_config();
+	//	printf("old curr_config_rom index is %d\n",curr_config_rom_index);
+		config[1] = 1;
+		curr_config_rom_index = update_config_rom_index(2,config);
+		printf("curr_config_rom_index is %d\n",curr_config_rom_index);
+		printf("config 0 is %d config 1 is %d\n",config[0],config[1]);
+		fflush(stdout);
+	}
+	else if(thresh_falu < 0.00000001)
+	{
+		int* config = get_curr_num_config();
+	//	printf("old curr_config_rom index is %d\n",curr_config_rom_index);
+		config[1] = 0;
+		curr_config_rom_index = update_config_rom_index(2,config);
+	//	printf("curr_config_rom_index is %d\n",curr_config_rom_index);
+	//	printf("config 0 is %d config 1 is %d\n",config[0],config[1]);
+	//	fflush(stdout);
+	}
 	//GET CONFIG ROM VALUE HERE
 
 	int config_i_bit_value = get_num_config_for_cluster(curr_config_rom_index,cluster_index);
@@ -5081,7 +5133,7 @@ int dummy_counter = 0;
 
 	//UPDATE THE FU CLUSTER COUNT DEPENDING ON THE CONFIG ROM
 	//the integer part 
-	if((int_alu_count>desired_alus || int_mult_div_count > desired_alus) && power_down_alu)
+	if((int_alu_count>desired_alus ||int_mult_div_count > desired_alus) && power_down_alu)
 	{
 		temp_alu_count = deactivate_alus_to(desired_alus,int_alu_count,INT_ALU,fu_pool);
 		temp_mult_alu_count = deactivate_alus_to(desired_alus,int_mult_div_count,INT_MUL_DIV,fu_pool);
@@ -5093,7 +5145,7 @@ int dummy_counter = 0;
 		temp_mult_alu_count = activate_alus_to(desired_alus,int_mult_div_count,INT_MUL_DIV,fu_pool);
 	}
 
-	//the floating point part
+	/*//the floating point part
 	if((fp_adders_count<desired_falus ||fp_mul_divs_count < desired_falus ) && !power_down_falu)
 	{
 		temp_falu_adder_count = activate_alus_to(desired_falus,fp_adders_count,FP_ADD,fu_pool);
@@ -5103,7 +5155,7 @@ int dummy_counter = 0;
 	{
 		temp_falu_adder_count = deactivate_alus_to(desired_falus,fp_adders_count,FP_ADD,fu_pool);
 		temp_falu_mul_div_count = deactivate_alus_to(desired_falus,fp_mul_divs_count,FP_MUL_DIV,fu_pool);
-	}
+	}*/
 //fp_adders
 //fp_mul_divs
 	

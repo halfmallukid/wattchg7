@@ -63,6 +63,20 @@ extern int desired_num_values[2][3];
 extern struct config_rom conf_rom[3];
 extern int curr_config_rom_index;
 extern struct res_desc fu_config[];
+int update_config_rom_index(int size,int* bitfield)
+{
+	int temp_index = 0;
+	int i =0;
+	for(i=0;i<size;i++)
+	{
+	 	temp_index += bitfield[i]<<i ;
+	}
+//	printf("temp_index is %d \n",temp_index);
+//	fflush(stdout);
+	curr_config_rom_index = temp_index;
+
+	return curr_config_rom_index;
+}
 
 void fill_config_rom()
 {
