@@ -1,6 +1,4 @@
 wattchg7
 ========
 
-Wattch Code 
-
-This code is meant to be used as a base from which all the changes are to be made. 
+This code was used to evaluate the effect of using dynamic counters to power on/ power off processors based on instruction demands.
